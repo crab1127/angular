@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" ng-app>
+<head>
+  <meta charset="UTF-8">
+  <title>一个典型的anguler例子</title>
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <script src="../bower_components/angular/angular.min.js"></script>
+  <script>
+  function InvoiceCtrl($scope) {
+    $scope.qty = 1;
+    $scope.cost = 19.95;
+  }
+  </script>
+</head>
+<body>
+<div ng-controller="InvoiceCtrl">
+    <b>Invoice:</b>
+    <br>
+    <br>
+    <table>
+        <tr><td>Quantity</td><td>Cost</td></tr>
+        <tr>
+            <td><input type="integer" min="0" ng-model="qty" required ></td>
+            <td><input type="number" ng-model="cost" required ></td>
+        </tr>
+    </table>
+    <hr>
+    <b>Total:</b> {{qty * cost | currency}}
+</div>
+</body>
+</html>
