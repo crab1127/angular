@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="form">
+<head>
+  <meta charset="UTF-8">
+  <title>表单</title>
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
+  <script src="../bower_components/angular/angular.min.js"></script>
+  <!--表单错误验证样式-->
+   <style type="text/css">
+      .css-form input.ng-invalid.ng-dirty {
+        background-color: #FA787E;
+      }
+
+      .css-form input.ng-valid.ng-dirty {
+        background-color: #78FA89;
+      }
+    </style>
+</head>
+<body>
+  知识点 <br>
+  函数 <br>
+  angular.copy
+  <p>novalidate 是用来屏蔽浏览器本身的验证功能的</p>
+  <p>required  字段必填选项</p>
+  <p>表单验证</p>
+  <div ng-controller="ctrl1">
+    <form action="" novalidate class="simple-form css-form">
+      name: <input type="text" ng-model="user.name" > <br>
+      email: <input type="email" ng-model="user.email" required > <br>
+      gender: <input type="radio" value="male" ng-model="user.gender"> male
+      <input type="radio" name="" id="" value="female" ng-model="user.gender"> femal<br>
+      <input type="submit" value="reset" ng-click="reset()" class="btn">
+      <input type="submit" value="save" ng-click="update(user)" class="btn">
+      <br>
+    </form>
+    <pre> from = {{user | json}}</pre>
+    <pre> master = {{master | json}}</pre>
+  </div>
+
+
+  <div ng-controller="ctrl2">
+    知识点：表单的状态或者表单元素状态绑定
+    <form action="" name="form" class="form-group" novalidate>
+      <label for="">name</label>
+      <input type="text" class="form-control" ng-model="user.name" name="uName" required>
+      <label for="">e-mail</label>
+      <input type="email" class="form-control" ng-model="user.email" name="uEmail" required>
+      <div ng-show="form.uEmail.$dirty && form.uEmail.$invalid">
+        Invalid: 
+        <span ng-show="form.uEmail.$error.required">tell us your email.</span>
+        <span ng-show="form.uEmail.$error.email">this is not a valid email</span>
+      </div>
+      <input type="radio" name="" value="male" ng-model="user.male" id="">male
+      <input type="radio" name="" id="" value="female" ng-model="user.gender" > female <br>
+      
+      <input type="checkbox" name="" id="" ng-model="user.agree" name="userAgree" required>
+      <label for="">i agree</label>
+      <input type="text" ng-show="user.agree" ng-model="user.agreeSign" requried class="form-control">
+      <div ng-show="!user.agree || !user.agreeSign">
+        please agree and sign.
+      </div>
+      <button ng-click="reset()" ng-disabled="isUnchanged(user)">reset</button>
+      <button ng-click="update(user)" ng-disabled="form.$invalid || isUnchanged(user)">reset</button>
+    </form>
+    <pre>form = {{user | json}}</pre>
+      <pre>master = {{master | json}}</pre>
+  </div>
+  <div>
+    <h3>自定义验证</h3>
+    <ul>
+      <li>第一个要验证的是输入是否是整数。例如，1.23就不是符合验证的值，因为它包含了分数部分。注意，我们是将验证数组中的项从头取出，而不是压入。这是因为我们要在输入值被改变（格式化）前，先验证输入的合法性。
+</li> 
+<li>
+  第二个指令是一个“智能浮点(smart-float)”。它能把"1.2"或者"1,2"都转化为合法的浮点数"1.2"。注意，这里我们不能使用“数字输入类型”，因为H支持TML5的浏览器不允许用户输入像"1,2"这样的非法值。
+</li>
+    </ul>
+    <form action="" class="form-group" novalidate>
+      <div>
+        <label for="">size (integer 0 - 10)</label>
+        <input type="number" name="size" min="0" max="10" ng-model="size" integer>{{size}} 
+        <span ng-show="form.size.$error.integer">
+          this is not valid integer!
+        </span>
+        <span ng-show="form.size.$error.min || form.size.$error.max">
+          the value must be in range 0 to 10
+        </span>
+      </div>
+
+      <div>
+        <label for="">length (float):</label>
+        <input type="text" ng-model="length" name="length" smart-float> {{length}}
+        <span ng-show="form.length.$error.float">this is not a valid float number! </span>
+      </div>
+    </form>
+  </div>
+  <div>
+    <h3>实现自定义的表单控件(用ngModel)</h3>
+    <div ng-model="content" title="click to edit" contentEditable>
+      some
+    </div>
+    <pre>
+      model = {{content}}
+    </pre>
+    <style type="text/css">
+      div[contentEditable] {
+        cursor: pointer;
+        background-color: #D0D0D0;
+      }
+    </style>
+  </div>
+  <script>
+  function ctrl1($scope) {
+    $scope.master = {};
+    $scope.update = function(user) {
+      $scope.master = angular.copy(user);
+    };
+
+    $scope.reset = function() {
+      $scope.user = angular.copy($scope.master);
+    };
+
+    $scope.reset();
+  }
+
+  function ctrl2($scope) {
+    $scope.master = {};
+    
+    $scope.update = function(user) {
+      $scope.master = angular.copy(user)
+    };
+
+    $scope.reset = function() {
+      $scope.user = angular.copy($scope.master);
+    };
+
+    $scope.isUnchanged = function(user) {
+      return angular.equals(user, $scope.master);
+    };
+
+    $scope.reset();
+  }
+
+  //自定义验证
+  var app = angular.module('form', []);
+
+  var INTEGER_REGEXP = /^\-?\d*$/;
+  var FLOAT_REGEXP = /^\-?\d+((\.|\,)\d+)?$/;
+  // app.directive('integer', function(){
+  //   return {
+  //     require: 'ngModel',
+  //     link: function($scope, iElm, iAttrs, ctrl) {
+  //       ctrl.$parsers.unshift(function(viewValue) {
+  //         if (INTEGER_REGEXP.test(viewValue)) {
+  //           ctrl.$setValidity('integer', true);
+  //           return viewValue;
+  //         } else {
+  //           ctrl.$setValidity('integer', false);
+  //           return undefined;
+  //         }
+  //       })
+  //     }
+  //   };
+  // });
+  app.directive('integer', function() {
+    return {
+      require: 'ngModel',
+      link: function(scope, elm, attrs, ctrl) {
+        ctrl.$parsers.unshift(function(viewValue) {
+          if (INTEGER_REGEXP.test(viewValue)) {
+            // it is valid
+            ctrl.$setValidity('integer', true);
+            return viewValue;
+          } else {
+            // it is invalid, return undefined (no model update)
+            ctrl.$setValidity('integer', false);
+            return undefined;
+          }
+        });
+      }
+    };
+  });
+
+  app.directive('smartFloat', function() {
+    return {
+      require: 'ngModel',
+      link: function(scope, elm, attrs, ctrl) {
+        ctrl.$parsers.unshift(function(viewValue) {
+          if (FLOAT_REGEXP.test(viewValue)) {
+            ctrl.$setValidity('float', true);
+            return parseFloat(viewValue.replace(',', '.'));
+          } else {
+            ctrl.$setValidity('float', false);
+            return undefined;
+          }
+        });
+      }
+    };
+  });
+
+  //
+  app.directive('contenteditable', function(){
+    // Runs during compile
+    return {
+      // name: '',
+      // priority: 1,
+      // terminal: true,
+      // scope: {}, // {} = isolate, true = child, false/undefined = no change
+      // controller: function($scope, $element, $attrs, $transclude) {},
+      require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+      // restrict: 'A', // E = Element, A = Attribute, C = Class, M = Comment
+      // template: '',
+      // templateUrl: '',
+      // replace: true,
+      // transclude: true,
+      // compile: function(tElement, tAttrs, function transclude(function(scope, cloneLinkingFn){ return function linking(scope, elm, attrs){}})),
+      link: function($scope, iElm, iAttrs, controller) {
+        iElm.bind('blur', function() {
+          $scope.$apply(function() {
+            controller.$setViewValue(iElm.html())
+          });
+        });
+
+        controller.$render = function(value) {
+          iElm.html(value);
+        };
+
+        controller.$setViewValue(iElm.html());
+      }
+    };
+  });
+  </script>
+</body>
+</html>

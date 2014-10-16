@@ -10,6 +10,10 @@
 <body>
   <p>指令的学习</p>
   <span draggable>Drag ME</span>
+
+  <span my-dir="exp"></span>
+  <span class="my-dir: exp;"></span>
+  <my-dir></my-dir>
   <div ng-controller="Ctrl1">
       Hello <input ng-model='name'> <hr/>
       &ltspan ng:bind="name"&gt <span ng:bind="name"></span> <br/>
@@ -18,5 +22,16 @@
       &ltspan data-ng-bind="name"&gt <span data-ng-bind="name"></span> <br/>
       &ltspan x-ng-bind="name"&gt <span x-ng-bind="name"></span> <br/>
     </div>
+
+  <h2>短板指令</h2>
+  <div class="" ng-controller="Ctrl2">
+    data format: <input type="text" ng-model="format">
+    current time is: <span my-current-time="format"></span>
+  </div>
+  <p>
+    疑问：
+    1.指令的完整格式，
+    2.指令有那些固定变量， 为什么我改了变量名就会报错
+  </p>
 </body>
 </html>
